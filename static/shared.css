@@ -1,0 +1,273 @@
+/* ------------------------------------------------------------------
+   GOV.UK Design System – colour palette, typography & spacing
+   ------------------------------------------------------------------ */
+@import url('https://fonts.googleapis.com/css2?family=GDS+Transport:wght@400;500;700&display=swap');
+
+/* --------------------------------------------------------------
+   Root variables – we keep the original custom‑property names
+   (so the rest of the app does not need to be touched) but map
+   them to the GOV.UK palette.
+   -------------------------------------------------------------- */
+:root {
+  /* ---- Core GOV.UK colours ------------------------------------------------*/
+  --bg:               #ffffff;                     /* page background                */
+  --surface:          #f3f2f1;                     /* header, cards, dialogs         */
+  --surface2:         #f3f2f1;                     /* secondary surfaces (toast…)    */
+  --border:           #b1b4b6;                     /* base border                    */
+  --border2:          #505a5f;                     /* hover/focus border             */
+  --accent:           #1d70b8;                     /* primary action colour (blue)  */
+  --accent-dim:       #003078;                     /* accent on hover/focus          */
+  --accent-bg:        #d2e2f1;                     /* subtle accent background       */
+  --text:             #0b0c0c;                     /* primary text                   */
+  --text-muted:       #626a6e;                     /* secondary text                 */
+  --text-dim:         #505a5f;                     /* tertiary / disabled text       */
+  --success:          #00703c;                     /* green – success                */
+  --warning:          #ff9955;                     /* orange – warning               */
+  --error:            #d4351c;                     /* red – error                    */
+  --info:             #1d70b8;                     /* blue – informational           */
+  --radius:           0;                          /* GOV.UK uses square corners    */
+  --header-h:         48px;                        /* GOV.UK header height           */
+
+  /* ---- Typography --------------------------------------------------------*/
+  --font-body:        'GDS Transport', Helvetica, Arial, sans-serif;
+  --font-brand:       'GDS Transport', Helvetica, Arial, sans-serif;
+}
+
+/* ------------------------------------------------------------------
+   Global reset & base styles
+   ------------------------------------------------------------------ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html,
+body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;                 /* GOV.UK base font size */
+  line-height: 1.25;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ------------------------------------------------------------------
+   Header (fixed at top)
+   ------------------------------------------------------------------ */
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;                 /* 1rem = 16px */
+  gap: 12px;                       /* 0.75rem */
+  z-index: 100;
+}
+
+/* Branding text */
+.header-brand {
+  font-family: var(--font-brand);
+  font-weight: 700;
+  font-size: 1.125rem;             /* 18px */
+  color: var(--accent);
+  flex: 1;
+}
+
+/* User meta information */
+.header-user {
+  font-size: .875rem;             /* 14px */
+  color: var(--text-muted);
+  letter-spacing: .05em;
+}
+
+/* Role badge – subtle background with accent border */
+.header-role {
+  font-size: .75rem;              /* 12px */
+  text-transform: uppercase;
+  letter-spacing: .15em;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+  padding: 2px 8px;
+}
+
+/* Logout button – GOV.UK “secondary” style */
+.logout-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: .75rem;               /* 12px */
+  text-transform: uppercase;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: background-color .15s, border-color .15s, color .15s;
+}
+.logout-btn:hover,
+.logout-btn:focus-visible {
+  background: var(--surface2);
+  border-color: var(--error);
+  color: var(--error);
+  outline: none;
+}
+
+/* ------------------------------------------------------------------
+   Status badges – GOV.UK .govuk-tag equivalents
+   ------------------------------------------------------------------ */
+.badge {
+  display: inline-block;
+  font-size: .75rem;              /* 12px */
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 8px;
+  border: 1px solid transparent;
+}
+
+/* Individual badge colours – high contrast */
+.badge-received  { background: #d2e2f1; color: var(--info);    border-color: var(--info); }
+.badge-preparing { background: #fff4e5; color: var(--warning); border-color: var(--warning); }
+.badge-ready     { background: #d0e9d5; color: var(--success); border-color: var(--success); }
+.badge-served    { background: var(--surface); color: var(--text-dim); border-color: var(--border); }
+.badge-cancelled { background: #f6d7d2; color: var(--error);   border-color: var(--error); }
+
+/* ------------------------------------------------------------------
+   Buttons – GOV.UK primary, secondary, warning & success
+   ------------------------------------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: .875rem;           /* 14px */
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  padding: .5rem .875rem;       /* 8px 14px */
+  border: 0;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color .15s, border-color .15s, color .15s, transform .1s;
+}
+.btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 0;
+}
+.btn:active { transform: translateY(1px); }
+.btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* Primary – solid blue */
+.btn-primary {
+  background: var(--accent);
+  color: var(--govuk-white);
+}
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: var(--accent-dim);
+}
+
+/* Ghost – white background, grey border (GOV.UK secondary) */
+.btn-ghost {
+  background: var(--govuk-white);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  background: var(--surface);
+}
+
+/* Danger – red border, transparent background */
+.btn-danger {
+  background: transparent;
+  color: var(--error);
+  border: 1px solid var(--error);
+}
+.btn-danger:hover,
+.btn-danger:focus-visible {
+  background: rgba(212,53,28,.05);
+}
+
+/* Success – solid green */
+.btn-success {
+  background: var(--success);
+  color: var(--govuk-white);
+}
+.btn-success:hover,
+.btn-success:focus-visible {
+  background: #005a30;   /* darker success */
+}
+
+/* ------------------------------------------------------------------
+   Toast notifications – GOV.UK notification‑banner styling
+   ------------------------------------------------------------------ */
+#toast {
+  position: fixed;
+  bottom: 16px;                     /* 1rem */
+  left: 50%;
+  transform: translate(-50%, 3rem); /* hidden state */
+  background: var(--surface2);
+  border-left: 5px solid var(--border2);
+  color: var(--text);
+  font-size: .875rem;
+  padding: .625rem 1.25rem;         /* 10px 20px */
+  max-width: 30rem;
+  z-index: 9999;
+  transition: transform .25s ease;
+}
+#toast.show {
+  transform: translate(-50%, 0);
+}
+#toast.toast-success {
+  border-left-color: var(--success);
+  color: var(--success);
+}
+#toast.toast-error {
+  border-left-color: var(--error);
+  color: var(--error);
+}
+
+/* ------------------------------------------------------------------
+   Scrollbars – subtle but visible on light backgrounds
+   ------------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border2);
+}
+
+/* ------------------------------------------------------------------
+   Utility classes – unchanged (semantic helpers)
+   ------------------------------------------------------------------ */
+.flex           { display: flex; }
+.flex-col       { flex-direction: column; }
+.items-center   { align-items: center; }
+.justify-between{ justify-content: space-between; }
+.gap-8          { gap: .5rem; }      /* 8px  */
+.gap-12         { gap: .75rem; }     /* 12px */
+.mt-8           { margin-top: .5rem; }  /* 8px */
+.mt-16          { margin-top: 1rem; }    /* 16px */
+.text-muted     { color: var(--text-muted); }
+.text-sm        { font-size: .875rem; }
+.text-xs        { font-size: .75rem; letter-spacing: .1em; }
+
+/* ------------------------------------------------------------------
+   Global focus style – matches the GOV.UK focus indicator
+   ------------------------------------------------------------------ */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 0;
+}

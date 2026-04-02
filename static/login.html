@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Maison - Staff Login</title>
+<style>
+:root {
+  --govuk-black: #0b0c0c;
+  --govuk-white: #ffffff;
+  --govuk-light-grey: #f3f2f1;
+  --govuk-mid-grey: #b1b4b6;
+  --govuk-dark-grey: #505a5f;
+  --govuk-blue: #1d70b8;
+  --govuk-blue-hover: #003078;
+  --govuk-green: #00703c;
+  --govuk-red: #d4351c;
+  --govuk-yellow: #ffdd00;
+
+  --radius: 0;
+  --gap: 0.5rem;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 20px;
+  min-height: 100%;
+  background: var(--govuk-white);
+  color: var(--govuk-black);
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  line-height: 1.5;
+}
+
+/* Container */
+.wrap {
+  width: 100%;
+  max-width: 420px;
+  z-index: 1;
+}
+
+/* Brand */
+.brand {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.brand-name {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--govuk-black);
+  margin: 0;
+}
+
+.brand-sub {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--govuk-dark-grey);
+  margin-top: 5px;
+}
+
+.rule {
+  width: 40px;
+  height: 4px;
+  background: var(--govuk-blue);
+  margin: 15px auto 0;
+}
+
+/* Role selector */
+.role-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--govuk-dark-grey);
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap);
+  margin-bottom: 25px;
+}
+
+.role-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 15px;
+  background: var(--govuk-light-grey);
+  border: 2px solid var(--govuk-mid-grey);
+  cursor: pointer;
+}
+
+.role-tile:hover,
+.role-tile:focus-visible {
+  border-color: var(--govuk-blue);
+  outline: 3px solid var(--govuk-yellow);
+}
+
+.role-tile.selected {
+  border-color: var(--govuk-blue);
+  background: #e7f3ff;
+}
+
+.role-icon {
+  font-size: 20px;
+}
+
+.role-name {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--govuk-black);
+}
+
+.role-tile.selected .role-name {
+  font-weight: bold;
+  color: var(--govuk-blue);
+}
+
+/* Card */
+.card {
+  background: var(--govuk-light-grey);
+  border: 2px solid var(--govuk-mid-grey);
+  padding: 25px;
+}
+
+/* Fields */
+.field { margin-bottom: 20px; }
+
+.field-label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.field-input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  color: var(--govuk-black);
+  background: var(--govuk-white);
+  border: 2px solid var(--govuk-black);
+}
+
+.field-input:focus {
+  outline: 3px solid var(--govuk-yellow);
+}
+
+/* Button */
+.login-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--govuk-white);
+  background: var(--govuk-green);
+  border: none;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background: #005a30;
+}
+
+.login-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--govuk-mid-grey);
+}
+
+/* Error */
+.error-msg {
+  min-height: 16px;
+  font-size: 14px;
+  color: var(--govuk-red);
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Form header */
+.form-role-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--govuk-mid-grey);
+}
+
+.form-role-title {
+  font-size: 14px;
+  color: var(--govuk-dark-grey);
+}
+
+.form-role-badge {
+  font-size: 12px;
+  padding: 3px 8px;
+  background: #e7f3ff;
+  color: var(--govuk-blue);
+  border: 1px solid var(--govuk-blue);
+}
+
+.form-role-badge.hidden { opacity: 0; }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-name">Maison</div>
+    <div class="brand-sub">Staff Portal</div>
+    <div class="rule"></div>
+  </div>
+
+  <!-- Role selector -->
+  <div class="role-label">Sign in as</div>
+  <div class="role-grid">
+    <div class="role-tile selected" data-role="admin" onclick="selectRole('admin')">
+      <div class="role-icon">&#9881;</div>
+      <div class="role-name">Admin</div>
+    </div>
+    <div class="role-tile" data-role="waiter" onclick="selectRole('waiter')">
+      <div class="role-icon">&#128203;</div>
+      <div class="role-name">Waiter</div>
+    </div>
+    <div class="role-tile" data-role="kitchen" onclick="selectRole('kitchen')">
+      <div class="role-icon">&#128293;</div>
+      <div class="role-name">Kitchen</div>
+    </div>
+  </div>
+
+  <!-- Login form -->
+  <div class="card">
+    <div class="form-role-bar">
+      <span class="form-role-title">Credentials</span>
+      <span class="form-role-badge" id="roleBadge">Admin</span>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="username">Username</label>
+      <input class="field-input" id="username" type="text" autocomplete="username"
+             autocapitalize="none" spellcheck="false" autocorrect="off">
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="password">Password</label>
+      <input class="field-input" id="password" type="password" autocomplete="current-password">
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="login()">Sign In</button>
+    <div class="error-msg" id="errMsg"></div>
+  </div>
+
+</div>
+
+<script>
+  const API = '';
+  let selectedRole = 'admin';
+
+  // Clear any stale session on login page load
+  localStorage.removeItem('token');
+  localStorage.removeItem('role');
+  localStorage.removeItem('username');
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !document.getElementById('loginBtn').disabled) login();
+  });
+
+  function selectRole(role) {
+    selectedRole = role;
+    document.querySelectorAll('.role-tile').forEach(t => {
+      t.classList.toggle('selected', t.dataset.role === role);
+    });
+    const labels = { admin: 'Admin', waiter: 'Waiter', kitchen: 'Kitchen' };
+    document.getElementById('roleBadge').textContent = labels[role] || role;
+    document.getElementById('errMsg').textContent = '';
+    document.getElementById('username').focus();
+  }
+
+  async function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const btn      = document.getElementById('loginBtn');
+    const err      = document.getElementById('errMsg');
+
+    if (!username || !password) {
+      err.textContent = 'Username and password are required';
+      return;
+    }
+
+    btn.disabled = true;
+    err.textContent = '';
+
+    try {
+      const res  = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        err.textContent = data.detail || 'Login failed';
+        btn.disabled = false;
+        return;
+      }
+
+      // Verify the returned role matches the selected tile
+      if (data.role !== selectedRole) {
+        err.textContent = `This account is a ${data.role}, not a ${selectedRole}`;
+        btn.disabled = false;
+        return;
+      }
+
+      localStorage.setItem('token',    data.token);
+      localStorage.setItem('role',     data.role);
+      localStorage.setItem('username', data.username);
+
+      const routes = { admin: '/admin', waiter: '/waiter', kitchen: '/kitchen' };
+      window.location.href = routes[data.role] || '/waiter';
+
+    } catch (e) {
+      err.textContent = 'Connection error - server may be offline';
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

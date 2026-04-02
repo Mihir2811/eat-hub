@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Maison</title>
+<link rel="stylesheet" href="/static/shared.css">
+<style>
+:root {
+  --govuk-black: #0b0c0c;
+  --govuk-white: #ffffff;
+  --govuk-light-grey: #f3f2f1;
+  --govuk-mid-grey: #b1b4b6;
+  --govuk-dark-grey: #505a5f;
+  --govuk-blue: #1d70b8;
+  --govuk-blue-hover: #003078;
+  --govuk-green: #00703c;
+  --govuk-red: #d4351c;
+  --govuk-yellow: #ffdd00;
+
+  --radius: 0;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+  padding-top: var(--header-h);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  color: var(--govuk-black);
+  background: var(--govuk-white);
+}
+
+/* Layout */
+.admin-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--govuk-light-grey);
+  border-right: 1px solid var(--govuk-mid-grey);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+  overflow-y: auto;
+}
+
+@media (max-width:700px) {
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    border-right: none;
+    border-bottom: 1px solid var(--govuk-mid-grey);
+    padding: 8px;
+    overflow-x: auto;
+  }
+  .sidebar .nav-section-label { display: none; }
+  .admin-layout { flex-direction: column; }
+}
+
+.nav-section-label {
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--govuk-dark-grey);
+  padding: 10px 15px 5px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  font-size: 14px;
+  color: var(--govuk-black);
+  cursor: pointer;
+  border-left: 4px solid transparent;
+}
+
+.nav-item:hover {
+  background: var(--govuk-white);
+}
+
+.nav-item.active {
+  border-left-color: var(--govuk-blue);
+  font-weight: bold;
+}
+
+@media (max-width:700px) {
+  .nav-item {
+    border-left: none;
+    border-bottom: 3px solid transparent;
+  }
+  .nav-item.active {
+    border-bottom-color: var(--govuk-blue);
+  }
+}
+
+/* Main */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page { display: none; }
+.page.active { display: flex; flex-direction: column; gap: 15px; }
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--govuk-black);
+}
+
+/* Stats */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+  gap: 15px;
+}
+
+.stat-card {
+  background: var(--govuk-light-grey);
+  border: 1px solid var(--govuk-mid-grey);
+  padding: 15px;
+}
+
+.stat-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--govuk-dark-grey);
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--govuk-blue);
+}
+
+.stat-sub {
+  font-size: 12px;
+  color: var(--govuk-dark-grey);
+}
+
+/* Table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--govuk-mid-grey);
+}
+
+.data-table th {
+  text-align: left;
+  font-weight: bold;
+  background: var(--govuk-light-grey);
+}
+
+.data-table tr:hover td {
+  background: #fafafa;
+}
+
+.data-table-wrap {
+  border: 1px solid var(--govuk-mid-grey);
+  overflow-x: auto;
+}
+
+/* Modal */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(11,12,12,0.7);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-backdrop.open { display: flex; }
+
+.modal {
+  background: var(--govuk-white);
+  border: 2px solid var(--govuk-black);
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+/* Forms */
+.form-field { margin-bottom: 15px; }
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  border: 2px solid var(--govuk-black);
+  padding: 8px;
+  font-size: 14px;
+  background: var(--govuk-white);
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: 3px solid var(--govuk-yellow);
+}
+
+/* Buttons container */
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Chart */
+.earnings-chart {
+  background: var(--govuk-light-grey);
+  border: 1px solid var(--govuk-mid-grey);
+  padding: 15px;
+}
+
+.chart-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 120px;
+}
+
+.chart-bar {
+  width: 20px;
+  background: var(--govuk-blue);
+}
+
+.chart-bar-label {
+  font-size: 10px;
+}
+
+/* Logs */
+.log-action { font-size: 13px; }
+.log-details { font-size: 12px; color: var(--govuk-dark-grey); }
+.log-entity { font-size: 12px; color: var(--govuk-blue); }
+.log-time { font-size: 12px; color: var(--govuk-dark-grey); }
+
+/* Toggle */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.toggle input { opacity: 0; }
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--govuk-mid-grey);
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  top: 2px;
+  background: var(--govuk-white);
+}
+
+.toggle input:checked + .toggle-slider {
+  background: var(--govuk-green);
+}
+
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* Filters */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-input {
+  border: 2px solid var(--govuk-black);
+  padding: 6px 10px;
+  font-size: 14px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">Maison</div>
+  <span class="header-role">Admin</span>
+  <span class="header-user" id="hdrUser"></span>
+  <button class="logout-btn" onclick="logout()">Sign Out</button>
+</div>
+
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-section-label">Overview</div>
+    <div class="nav-item active" onclick="showPage('stats')">Statistics</div>
+    <div class="nav-item" onclick="showPage('earnings')">Earnings</div>
+    <div class="nav-section-label">Management</div>
+    <div class="nav-item" onclick="showPage('menu')">Menu</div>
+    <div class="nav-item" onclick="showPage('tables')">Tables</div>
+    <div class="nav-item" onclick="showPage('users')">Staff</div>
+    <div class="nav-item" onclick="showPage('sessions')">Sessions</div>
+    <div class="nav-section-label">System</div>
+    <div class="nav-item" onclick="showPage('logs')">Activity Logs</div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- STATS PAGE -->
+    <div class="page active" id="page-stats">
+      <div class="page-header">
+        <div class="page-title">Statistics</div>
+        <div class="filter-bar">
+          <select class="filter-input" id="statsDays" onchange="loadStats()">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </div>
+      </div>
+      <div class="stat-grid" id="statGrid">
+        <div class="stat-card"><div class="stat-label">Loading...</div></div>
+      </div>
+
+      <div>
+        <div class="nav-section-label" style="padding:0 0 8px">Top Items</div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>#</th><th>Item</th><th>Qty Sold</th></tr></thead>
+            <tbody id="popularTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="nav-section-label" style="padding:0 0 8px">Peak Hours</div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Hour</th><th>Orders</th></tr></thead>
+            <tbody id="peakTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EARNINGS PAGE -->
+    <div class="page" id="page-earnings">
+      <div class="page-header">
+        <div class="page-title">Earnings</div>
+        <select class="filter-input" id="earningsDays" onchange="loadEarnings()">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </div>
+      <div class="earnings-chart">
+        <div class="chart-title">Daily Revenue</div>
+        <div class="chart-bars" id="earningsChart"></div>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Orders</th><th>Revenue</th></tr></thead>
+          <tbody id="earningsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MENU PAGE -->
+    <div class="page" id="page-menu">
+      <div class="page-header">
+        <div class="page-title">Menu</div>
+        <button class="btn btn-primary" onclick="openMenuModal()">+ Add Item</button>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Available</th><th></th></tr></thead>
+          <tbody id="menuTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TABLES PAGE -->
+    <div class="page" id="page-tables">
+      <div class="page-header">
+        <div class="page-title">Tables</div>
+        <button class="btn btn-primary" onclick="openTableModal()">+ Add Table</button>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Table</th><th>Capacity</th><th>Status</th><th>Session</th></tr></thead>
+          <tbody id="tablesTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- USERS PAGE -->
+    <div class="page" id="page-users">
+      <div class="page-header">
+        <div class="page-title">Staff Accounts</div>
+        <button class="btn btn-primary" onclick="openUserModal()">+ Add Staff</button>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Username</th><th>Role</th><th>Created</th><th>Active</th><th></th></tr></thead>
+          <tbody id="usersTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SESSIONS PAGE -->
+    <div class="page" id="page-sessions">
+      <div class="page-header">
+        <div class="page-title">Active Sessions</div>
+        <button class="btn btn-ghost" onclick="loadSessions()">Refresh</button>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Table</th><th>Session</th><th>Opened</th><th>Bill</th><th></th></tr></thead>
+          <tbody id="sessionsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LOGS PAGE -->
+    <div class="page" id="page-logs">
+      <div class="page-header">
+        <div class="page-title">Activity Logs</div>
+        <div class="filter-bar">
+          <select class="filter-input" id="logEntityFilter" onchange="loadLogs()">
+            <option value="">All entities</option>
+            <option value="order">Orders</option>
+            <option value="session">Sessions</option>
+            <option value="menu_item">Menu</option>
+            <option value="user">Users</option>
+            <option value="table">Tables</option>
+          </select>
+          <button class="btn btn-ghost" onclick="loadLogs()">Refresh</button>
+        </div>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>Details</th></tr></thead>
+          <tbody id="logsTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- Add Menu Item -->
+<div class="modal-backdrop" id="menuModal">
+  <div class="modal">
+    <div class="modal-title">Add Menu Item</div>
+    <div class="form-field">
+      <label class="form-label">Name</label>
+      <input class="form-input" id="mName" type="text">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Category</label>
+      <input class="form-input" id="mCategory" type="text">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Price</label>
+      <input class="form-input" id="mPrice" type="number" step="0.01" min="0.01">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="mDesc" type="text">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('menuModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitMenuItem()">Add Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Table -->
+<div class="modal-backdrop" id="tableModal">
+  <div class="modal">
+    <div class="modal-title">Add Table</div>
+    <div class="form-field">
+      <label class="form-label">Table Number</label>
+      <input class="form-input" id="tNum" type="number" min="1">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Capacity</label>
+      <input class="form-input" id="tCap" type="number" min="1" value="4">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('tableModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitTable()">Add Table</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add User -->
+<div class="modal-backdrop" id="userModal">
+  <div class="modal">
+    <div class="modal-title">Add Staff Account</div>
+    <div class="form-field">
+      <label class="form-label">Username</label>
+      <input class="form-input" id="uUsername" type="text" autocapitalize="none">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="uPassword" type="password">
+    </div>
+    <div class="form-field">
+      <label class="form-label">Role</label>
+      <select class="form-select" id="uRole">
+        <option value="waiter">Waiter</option>
+        <option value="kitchen">Kitchen</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('userModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitUser()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bill modal -->
+<div class="modal-backdrop" id="billModal">
+  <div class="modal">
+    <div class="modal-title">Session Bill</div>
+    <div id="billContent" style="font-size:0.78rem;color:var(--text-muted)">Loading...</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('billModal')">Close</button>
+      <button class="btn btn-primary" id="invoiceBtn" onclick="">Download Invoice</button>
+      <button class="btn btn-danger" id="closeSessionBtn" onclick="">Close Session</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ============================================================
+  // STATE
+  // ============================================================
+  const API = '';
+  let token = localStorage.getItem('token');
+  let role  = localStorage.getItem('role');
+  let username = localStorage.getItem('username');
+
+  if (!token || role !== 'admin') { window.location.href = '/'; }
+  document.getElementById('hdrUser').textContent = username;
+
+  // ============================================================
+  // NAV
+  // ============================================================
+  const pageLoaders = {
+    stats: loadStats,
+    earnings: loadEarnings,
+    menu: loadMenu,
+    tables: loadTables,
+    users: loadUsers,
+    sessions: loadSessions,
+    logs: loadLogs,
+  };
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(`page-${name}`).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.textContent.trim().toLowerCase().includes(name) || n.getAttribute('onclick')?.includes(name)) {
+        n.classList.add('active');
+      }
+    });
+    if (pageLoaders[name]) pageLoaders[name]();
+  }
+
+  // init
+  loadStats();
+
+  // ============================================================
+  // STATS
+  // ============================================================
+  async function loadStats() {
+    const days = document.getElementById('statsDays').value;
+    const data = await apiFetch(`/stats?days=${days}`);
+    if (!data) return;
+
+    document.getElementById('statGrid').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value">${data.total_orders}</div>
+        <div class="stat-sub">Last ${data.period_days} days</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value">$${data.total_revenue.toFixed(2)}</div>
+        <div class="stat-sub">Excl. cancelled</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Order Value</div>
+        <div class="stat-value">$${data.total_orders ? (data.total_revenue / data.total_orders).toFixed(2) : '0.00'}</div>
+      </div>
+    `;
+
+    document.getElementById('popularTable').innerHTML = data.popular_items.map((item, i) => `
+      <tr>
+        <td style="color:var(--text-dim)">${i + 1}</td>
+        <td>${item.item_name}</td>
+        <td><span class="badge badge-received">${item.total_qty}</span></td>
+      </tr>
+    `).join('') || '<tr><td colspan="3" style="color:var(--text-dim);font-size:0.72rem">No data</td></tr>';
+
+    document.getElementById('peakTable').innerHTML = data.peak_hours.map(h => `
+      <tr>
+        <td>${h.hour}:00</td>
+        <td>${h.count}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="2" style="color:var(--text-dim);font-size:0.72rem">No data</td></tr>';
+  }
+
+  // ============================================================
+  // EARNINGS
+  // ============================================================
+  async function loadEarnings() {
+    const days = document.getElementById('earningsDays').value;
+    const data = await apiFetch(`/earnings?days=${days}`);
+    if (!data) return;
+
+    const maxRev = Math.max(...data.map(d => d.revenue), 1);
+    document.getElementById('earningsChart').innerHTML = data.map(d => {
+      const pct = Math.max((d.revenue / maxRev) * 100, 2);
+      return `
+        <div class="chart-bar-wrap">
+          <div class="chart-bar" style="height:${pct}%" title="$${d.revenue.toFixed(2)}"></div>
+          <div class="chart-bar-label">${d.date.slice(5)}</div>
+        </div>
+      `;
+    }).join('') || '<div style="color:var(--text-dim);font-size:0.72rem">No data</div>';
+
+    document.getElementById('earningsTable').innerHTML = data.map(d => `
+      <tr>
+        <td>${d.date}</td>
+        <td>${d.order_count}</td>
+        <td style="color:var(--accent)">$${d.revenue.toFixed(2)}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="3" style="color:var(--text-dim);font-size:0.72rem">No data</td></tr>';
+  }
+
+  // ============================================================
+  // MENU
+  // ============================================================
+  async function loadMenu() {
+    const data = await apiFetch('/menu?available_only=false');
+    document.getElementById('menuTable').innerHTML = (data || []).map(item => `
+      <tr>
+        <td>${item.name}</td>
+        <td style="color:var(--text-muted)">${item.category}</td>
+        <td style="color:var(--accent)">$${item.price.toFixed(2)}</td>
+        <td>
+          <label class="toggle">
+            <input type="checkbox" ${item.is_available ? 'checked' : ''} onchange="toggleItem(${item.id}, this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </td>
+        <td style="color:var(--text-dim);font-size:0.65rem">${item.description || ''}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="color:var(--text-dim);font-size:0.72rem;padding:12px">No menu items</td></tr>';
+  }
+
+  function openMenuModal() { document.getElementById('menuModal').classList.add('open'); }
+
+  async function submitMenuItem() {
+    const name = document.getElementById('mName').value.trim();
+    const category = document.getElementById('mCategory').value.trim();
+    const price = parseFloat(document.getElementById('mPrice').value);
+    const description = document.getElementById('mDesc').value.trim();
+    if (!name || !category || !price) { showToast('Fill all required fields', 'error'); return; }
+    try {
+      await apiFetch('/menu', 'POST', { name, category, price, description });
+      showToast('Item added', 'success');
+      closeModal('menuModal');
+      loadMenu();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function toggleItem(itemId, isAvailable) {
+    try {
+      await apiFetch(`/menu/${itemId}/toggle`, 'PATCH', { is_available: isAvailable });
+      showToast(`Item ${isAvailable ? 'enabled' : 'disabled'}`, 'success');
+    } catch (e) { showToast(e.message, 'error'); loadMenu(); }
+  }
+
+  // ============================================================
+  // TABLES
+  // ============================================================
+  async function loadTables() {
+    const data = await apiFetch('/tables');
+    document.getElementById('tablesTable').innerHTML = (data || []).map(t => `
+      <tr>
+        <td style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--accent)">${t.table_number}</td>
+        <td>${t.capacity}</td>
+        <td>
+          <span class="badge ${t.session_id ? 'badge-preparing' : 'badge-served'}">
+            ${t.session_id ? 'Occupied' : 'Free'}
+          </span>
+        </td>
+        <td style="color:var(--text-muted);font-size:0.68rem">${t.session_id ? `Session #${t.session_id}` : '-'}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="4" style="color:var(--text-dim);font-size:0.72rem;padding:12px">No tables</td></tr>';
+  }
+
+  function openTableModal() { document.getElementById('tableModal').classList.add('open'); }
+
+  async function submitTable() {
+    const table_number = parseInt(document.getElementById('tNum').value);
+    const capacity = parseInt(document.getElementById('tCap').value);
+    if (!table_number || !capacity) { showToast('Fill all fields', 'error'); return; }
+    try {
+      await apiFetch('/tables', 'POST', { table_number, capacity });
+      showToast('Table added', 'success');
+      closeModal('tableModal');
+      loadTables();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ============================================================
+  // USERS
+  // ============================================================
+  async function loadUsers() {
+    const data = await apiFetch('/users');
+    document.getElementById('usersTable').innerHTML = (data || []).map(u => `
+      <tr>
+        <td>${u.username}</td>
+        <td><span class="badge ${u.role === 'admin' ? 'badge-ready' : 'badge-received'}">${u.role}</span></td>
+        <td style="color:var(--text-dim);font-size:0.68rem">${u.created_at.slice(0,10)}</td>
+        <td><span class="badge ${u.is_active ? 'badge-ready' : 'badge-cancelled'}">${u.is_active ? 'Active' : 'Inactive'}</span></td>
+        <td>
+          ${u.role !== 'admin' && u.is_active ? `<button class="btn btn-danger" style="padding:4px 10px;font-size:0.6rem" onclick="deactivateUser(${u.id})">Deactivate</button>` : ''}
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="color:var(--text-dim)">No users</td></tr>';
+  }
+
+  function openUserModal() { document.getElementById('userModal').classList.add('open'); }
+
+  async function submitUser() {
+    const username = document.getElementById('uUsername').value.trim();
+    const password = document.getElementById('uPassword').value;
+    const role = document.getElementById('uRole').value;
+    if (!username || !password) { showToast('Fill all fields', 'error'); return; }
+    if (password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+    try {
+      await apiFetch('/users', 'POST', { username, password, role });
+      showToast('Account created', 'success');
+      closeModal('userModal');
+      loadUsers();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function deactivateUser(userId) {
+    if (!confirm('Deactivate this account?')) return;
+    try {
+      await apiFetch(`/users/${userId}`, 'DELETE');
+      showToast('Account deactivated', 'success');
+      loadUsers();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ============================================================
+  // SESSIONS
+  // ============================================================
+  async function loadSessions() {
+    const tables = await apiFetch('/tables');
+    const active = (tables || []).filter(t => t.session_id);
+    document.getElementById('sessionsTable').innerHTML = active.map(t => `
+      <tr>
+        <td style="font-family:'DM Serif Display',serif;color:var(--accent)">${t.table_number}</td>
+        <td style="color:var(--text-muted)">#${t.session_id}</td>
+        <td style="color:var(--text-dim);font-size:0.68rem">${t.opened_at ? t.opened_at.slice(0,16).replace('T',' ') : '-'}</td>
+        <td><button class="btn btn-ghost" style="padding:5px 10px;font-size:0.65rem" onclick="viewBill(${t.session_id}, ${t.id})">View Bill</button></td>
+        <td></td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="color:var(--text-dim);padding:12px">No active sessions</td></tr>';
+  }
+
+  async function viewBill(sessionId, tableId) {
+    document.getElementById('billModal').classList.add('open');
+    document.getElementById('billContent').textContent = 'Loading...';
+    const data = await apiFetch(`/bill/${sessionId}`);
+    if (!data) return;
+
+    const grouped = {};
+    (data.items || []).forEach(i => {
+      const key = i.item_name;
+      if (!grouped[key]) grouped[key] = { qty: 0, price: i.price_at_time };
+      grouped[key].qty += i.quantity;
+    });
+
+    document.getElementById('billContent').innerHTML = `
+      <div style="margin-bottom:12px;color:var(--text)">Table ${data.table_number} - Session #${sessionId}</div>
+      <table style="width:100%;font-size:0.75rem;border-collapse:collapse">
+        ${Object.entries(grouped).map(([name, d]) => `
+          <tr>
+            <td style="padding:4px 0;color:var(--text)">${name}</td>
+            <td style="color:var(--text-muted);text-align:center">x${d.qty}</td>
+            <td style="text-align:right;color:var(--accent)">$${(d.price * d.qty).toFixed(2)}</td>
+          </tr>
+        `).join('')}
+        <tr style="border-top:1px solid var(--border);margin-top:4px">
+          <td colspan="2" style="padding-top:8px;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted)">Total</td>
+          <td style="padding-top:8px;text-align:right;color:var(--accent);font-size:1rem">${'$' + data.subtotal.toFixed(2)}</td>
+        </tr>
+      </table>
+    `;
+
+    document.getElementById('invoiceBtn').onclick = () => downloadInvoice(sessionId);
+    document.getElementById('closeSessionBtn').onclick = () => closeSession(sessionId);
+  }
+
+  async function downloadInvoice(sessionId) {
+    const res = await fetch(`${API}/invoice/${sessionId}`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!res.ok) { showToast('Invoice failed', 'error'); return; }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invoice_${sessionId}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function closeSession(sessionId) {
+    if (!confirm('Close session and mark table as free?')) return;
+    try {
+      await apiFetch(`/sessions/${sessionId}`, 'DELETE');
+      showToast('Session closed', 'success');
+      closeModal('billModal');
+      loadSessions();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ============================================================
+  // LOGS
+  // ============================================================
+  async function loadLogs() {
+    const entityType = document.getElementById('logEntityFilter').value;
+    const url = `/logs?limit=200${entityType ? '&entity_type=' + entityType : ''}`;
+    const data = await apiFetch(url);
+    document.getElementById('logsTable').innerHTML = (data || []).map(log => `
+      <tr>
+        <td class="log-time">${log.created_at.slice(0,16).replace('T',' ')}</td>
+        <td style="color:var(--accent-dim);font-size:0.72rem">${log.username || '-'}</td>
+        <td class="log-action">${log.action}</td>
+        <td class="log-entity">${log.entity_type || '-'} ${log.entity_id ? '#' + log.entity_id : ''}</td>
+        <td class="log-details" title="${log.details || ''}">${log.details || '-'}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="color:var(--text-dim)">No logs</td></tr>';
+  }
+
+  // ============================================================
+  // MODAL HELPERS
+  // ============================================================
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  document.querySelectorAll('.modal-backdrop').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+  });
+
+  // ============================================================
+  // API HELPER
+  // ============================================================
+  async function apiFetch(path, method = 'GET', body = null) {
+    const opts = {
+      method,
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`${API}${path}`, opts);
+    if (res.status === 401) { logout(); return; }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Request failed');
+    return data;
+  }
+
+  let toastTimer;
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `show ${type ? 'toast-' + type : ''}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = ''; }, 2800);
+  }
+
+  function logout() { localStorage.clear(); window.location.href = '/'; }
+</script>
+</body>
+</html>

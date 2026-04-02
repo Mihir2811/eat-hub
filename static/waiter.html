@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Waiter - Maison</title>
+<link rel="stylesheet" href="/static/shared.css">
+<style>
+:root {
+  --govuk-black: #0b0c0c;
+  --govuk-white: #ffffff;
+  --govuk-light-grey: #f3f2f1;
+  --govuk-mid-grey: #b1b4b6;
+  --govuk-dark-grey: #505a5f;
+  --govuk-blue: #1d70b8;
+  --govuk-blue-hover: #003078;
+  --govuk-green: #00703c;
+  --govuk-red: #d4351c;
+  --govuk-yellow: #ffdd00;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  --radius: 0;
+}
+
+html { box-sizing: border-box; font-size: 16px; }
+*, *::before, *::after { box-sizing: inherit; }
+
+body {
+  margin: 0;
+  padding-top: var(--header-h);
+  background: var(--govuk-white);
+  color: var(--govuk-black);
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+.hidden { display: none !important; }
+
+/* Layout */
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  height: calc(100vh - var(--header-h));
+}
+
+@media (max-width: 700px) {
+  .workspace { grid-template-columns: 1fr; }
+  .cart-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 45vh;
+    z-index: 50;
+  }
+  .left-panel { padding-bottom: 46vh; }
+}
+
+/* Left */
+.left-panel {
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.section-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--govuk-dark-grey);
+}
+
+/* Tables */
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.table-btn {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--govuk-light-grey);
+  border: 2px solid var(--govuk-mid-grey);
+  cursor: pointer;
+}
+
+.table-btn:hover,
+.table-btn:focus-visible {
+  border-color: var(--govuk-blue);
+  outline: 3px solid var(--govuk-yellow);
+}
+
+.table-btn.active {
+  border-color: var(--govuk-blue);
+  background: #e7f3ff;
+}
+
+.table-btn.occupied {
+  border-color: var(--govuk-red);
+}
+
+.table-num {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--govuk-blue);
+}
+
+.table-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--govuk-mid-grey);
+}
+
+.table-btn.occupied .table-status-dot {
+  background: var(--govuk-red);
+}
+
+/* Menu */
+.menu-search {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 14px;
+  background: var(--govuk-white);
+  border: 2px solid var(--govuk-black);
+}
+
+.menu-search:focus {
+  outline: 3px solid var(--govuk-yellow);
+}
+
+/* Tabs */
+.category-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  overflow-x: auto;
+}
+
+.category-tab {
+  padding: 6px 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+  border: 2px solid var(--govuk-mid-grey);
+  background: var(--govuk-white);
+  cursor: pointer;
+}
+
+.category-tab.active {
+  border-color: var(--govuk-blue);
+  color: var(--govuk-blue);
+  font-weight: bold;
+}
+
+.category-tab:focus-visible {
+  outline: 3px solid var(--govuk-yellow);
+}
+
+/* Menu rows */
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 10px;
+  background: var(--govuk-light-grey);
+  border: 2px solid var(--govuk-mid-grey);
+  cursor: pointer;
+}
+
+.menu-row:hover {
+  border-color: var(--govuk-blue);
+}
+
+.menu-row-name {
+  flex: 1;
+  font-size: 14px;
+}
+
+.menu-row-price {
+  font-size: 14px;
+  color: var(--govuk-blue);
+}
+
+.menu-row-add {
+  width: 24px;
+  height: 24px;
+  background: var(--govuk-green);
+  color: var(--govuk-white);
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.menu-row-add:focus-visible {
+  outline: 3px solid var(--govuk-yellow);
+}
+
+/* Cart */
+.cart-panel {
+  background: var(--govuk-light-grey);
+  border-left: 2px solid var(--govuk-mid-grey);
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--govuk-mid-grey);
+  display: flex;
+  justify-content: space-between;
+}
+
+.cart-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--govuk-dark-grey);
+}
+
+.cart-table-info {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--govuk-blue);
+}
+
+.cart-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.cart-empty {
+  text-align: center;
+  color: var(--govuk-dark-grey);
+  font-size: 12px;
+}
+
+/* Cart item */
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 8px;
+  background: var(--govuk-white);
+  border: 2px solid var(--govuk-mid-grey);
+}
+
+.cart-item-name {
+  flex: 1;
+  font-size: 14px;
+}
+
+.qty-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qty-btn {
+  width: 20px;
+  height: 20px;
+  background: var(--govuk-light-grey);
+  border: 1px solid var(--govuk-mid-grey);
+  cursor: pointer;
+}
+
+.qty-btn:focus-visible {
+  outline: 3px solid var(--govuk-yellow);
+}
+
+.qty-num {
+  font-size: 14px;
+}
+
+.cart-item-price {
+  font-size: 14px;
+  color: var(--govuk-blue);
+}
+
+/* Footer */
+.cart-footer {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--govuk-mid-grey);
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+
+.cart-total-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--govuk-dark-grey);
+}
+
+.cart-total-val {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--govuk-blue);
+}
+
+/* Notes */
+.notes-input {
+  width: 100%;
+  padding: 8px;
+  border: 2px solid var(--govuk-black);
+  font-size: 14px;
+}
+
+.notes-input:focus {
+  outline: 3px solid var(--govuk-yellow);
+}
+
+/* Send button */
+.send-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--govuk-green);
+  color: var(--govuk-white);
+  border: none;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Orders */
+.orders-strip {
+  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.order-card {
+  background: var(--govuk-light-grey);
+  border: 2px solid var(--govuk-mid-grey);
+  padding: 8px;
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.order-card-id {
+  font-size: 12px;
+  color: var(--govuk-dark-grey);
+}
+
+.order-cancel-btn {
+  font-size: 12px;
+  text-transform: uppercase;
+  background: transparent;
+  border: 2px solid var(--govuk-red);
+  color: var(--govuk-red);
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.order-cancel-btn:hover {
+  background: var(--govuk-red);
+  color: var(--govuk-white);
+}
+
+.order-cancel-btn:focus-visible {
+  outline: 3px solid var(--govuk-yellow);
+}
+
+:focus-visible { outline-style: solid; }
+</style>
+
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">Maison</div>
+  <span class="header-role">Waiter</span>
+  <span class="header-user" id="hdrUser"></span>
+  <button class="logout-btn" onclick="logout()">Sign Out</button>
+</div>
+
+<div class="workspace">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+
+    <!-- Tables -->
+    <div>
+      <div class="section-label">Tables</div>
+      <div class="table-grid" id="tableGrid">
+        <div style="color:var(--text-dim);font-size:0.72rem">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Menu search & filter -->
+    <div>
+      <div class="section-label">Menu</div>
+      <input class="menu-search" id="menuSearch" type="text" placeholder="Search items..." oninput="filterMenu()">
+      <div class="category-tabs mt-8" id="categoryTabs"></div>
+      <div class="menu-list mt-8" id="menuList"></div>
+    </div>
+
+    <!-- Current session orders -->
+    <div id="ordersSection" style="display:none">
+      <div class="section-label">Session Orders</div>
+      <div class="orders-strip" id="ordersStrip"></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: CART PANEL -->
+  <div class="cart-panel">
+    <div class="cart-header">
+      <div>
+        <div class="cart-title">Order Cart</div>
+        <div class="cart-table-info" id="cartTableInfo">No table selected</div>
+      </div>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty">Select a table</div>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span class="cart-total-label">Total</span>
+        <span class="cart-total-val" id="cartTotal">$0.00</span>
+      </div>
+      <textarea class="notes-input" id="orderNotes" rows="2" placeholder="Notes (optional)..."></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendOrder()" disabled>Send to Kitchen</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ============================================================
+  // STATE
+  // ============================================================
+  const API = '';
+  let token = localStorage.getItem('token');
+  let role  = localStorage.getItem('role');
+  let username = localStorage.getItem('username');
+
+  let tables = [];
+  let menuItems = [];
+  let cart = [];
+  let selectedTable = null;
+  let activeSession = null;
+  let activeCategory = 'all';
+  let ws = null;
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  if (!token || role !== 'waiter') { window.location.href = '/'; }
+
+  document.getElementById('hdrUser').textContent = username;
+
+  async function init() {
+    await Promise.all([loadTables(), loadMenu()]);
+    connectWS();
+  }
+
+  init();
+
+  // ============================================================
+  // WEBSOCKET
+  // ============================================================
+  function connectWS() {
+    const wsUrl = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws/waiter?token=${token}`;
+    ws = new WebSocket(wsUrl);
+    ws.onmessage = e => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'status_update') {
+        showToast(`Order #${msg.order_id} is now ${msg.status}`, 'success');
+        if (activeSession) loadSessionOrders(activeSession.id);
+      }
+    };
+    ws.onclose = () => setTimeout(connectWS, 3000);
+    setInterval(() => ws && ws.readyState === 1 && ws.send(JSON.stringify({type:'ping'})), 20000);
+  }
+
+  // ============================================================
+  // TABLES
+  // ============================================================
+  async function loadTables() {
+    const data = await apiFetch('/tables');
+    tables = data || [];
+    renderTableGrid();
+  }
+
+  function renderTableGrid() {
+    const grid = document.getElementById('tableGrid');
+    grid.innerHTML = tables.map(t => `
+      <div class="table-btn ${t.session_id ? 'occupied' : ''} ${selectedTable?.id === t.id ? 'active' : ''}"
+           onclick="selectTable(${t.id})" data-tid="${t.id}">
+        <div class="table-num">${t.table_number}</div>
+        <div class="table-status-dot"></div>
+      </div>
+    `).join('') || '<div style="color:var(--text-dim);font-size:0.72rem">No tables</div>';
+  }
+
+  async function selectTable(tableId) {
+    selectedTable = tables.find(t => t.id === tableId);
+    renderTableGrid();
+    document.getElementById('cartTableInfo').textContent = `Table ${selectedTable.table_number}`;
+    document.getElementById('cartItems').innerHTML = '<div class="cart-empty">Cart empty</div>';
+    cart = [];
+    renderCart();
+
+    // Open/resume session
+    const session = await apiFetch('/sessions', 'POST', { table_id: tableId });
+    activeSession = session;
+    loadSessionOrders(session.id);
+    document.getElementById('ordersSection').style.display = 'block';
+  }
+
+  // ============================================================
+  // MENU
+  // ============================================================
+  async function loadMenu() {
+    const data = await apiFetch('/menu?available_only=true');
+    menuItems = data || [];
+
+    // Build category tabs
+    const cats = ['all', ...new Set(menuItems.map(i => i.category))];
+    document.getElementById('categoryTabs').innerHTML = cats.map(c => `
+      <button class="category-tab ${c === 'all' ? 'active' : ''}" onclick="setCategory('${c}')">${c}</button>
+    `).join('');
+
+    renderMenu();
+  }
+
+  function setCategory(cat) {
+    activeCategory = cat;
+    document.querySelectorAll('.category-tab').forEach(b => b.classList.toggle('active', b.textContent === cat));
+    filterMenu();
+  }
+
+  function filterMenu() {
+    renderMenu();
+  }
+
+  function renderMenu() {
+    const q = document.getElementById('menuSearch').value.toLowerCase();
+    const list = menuItems.filter(i => {
+      const matchCat = activeCategory === 'all' || i.category === activeCategory;
+      const matchQ = !q || i.name.toLowerCase().includes(q) || (i.description||'').toLowerCase().includes(q);
+      return matchCat && matchQ;
+    });
+
+    document.getElementById('menuList').innerHTML = list.map(i => `
+      <div class="menu-row" onclick="addToCart(${i.id})">
+        <div class="menu-row-name">${i.name}</div>
+        <div class="menu-row-price">$${i.price.toFixed(2)}</div>
+        <button class="menu-row-add" onclick="event.stopPropagation();addToCart(${i.id})">+</button>
+      </div>
+    `).join('') || '<div style="color:var(--text-dim);font-size:0.72rem;padding:12px 0">No items</div>';
+  }
+
+  // ============================================================
+  // CART
+  // ============================================================
+  function addToCart(itemId) {
+    if (!selectedTable) { showToast('Select a table first', 'error'); return; }
+    const item = menuItems.find(i => i.id === itemId);
+    const existing = cart.find(c => c.menu_item_id === itemId);
+    if (existing) {
+      existing.quantity++;
+    } else {
+      cart.push({ menu_item_id: itemId, name: item.name, price: item.price, quantity: 1 });
+    }
+    renderCart();
+  }
+
+  function changeQty(itemId, delta) {
+    const idx = cart.findIndex(c => c.menu_item_id === itemId);
+    if (idx === -1) return;
+    cart[idx].quantity += delta;
+    if (cart[idx].quantity <= 0) cart.splice(idx, 1);
+    renderCart();
+  }
+
+  function renderCart() {
+    const container = document.getElementById('cartItems');
+    const sendBtn = document.getElementById('sendBtn');
+    if (!cart.length) {
+      container.innerHTML = '<div class="cart-empty">Cart empty</div>';
+      sendBtn.disabled = true;
+      document.getElementById('cartTotal').textContent = '$0.00';
+      return;
+    }
+
+    container.innerHTML = cart.map(c => `
+      <div class="cart-item">
+        <div class="cart-item-name">${c.name}</div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(${c.menu_item_id}, -1)">-</button>
+          <div class="qty-num">${c.quantity}</div>
+          <button class="qty-btn" onclick="changeQty(${c.menu_item_id}, 1)">+</button>
+        </div>
+        <div class="cart-item-price">$${(c.price * c.quantity).toFixed(2)}</div>
+      </div>
+    `).join('');
+
+    const total = cart.reduce((s, c) => s + c.price * c.quantity, 0);
+    document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+    sendBtn.disabled = !selectedTable;
+  }
+
+  // ============================================================
+  // SEND ORDER
+  // ============================================================
+  async function sendOrder() {
+    if (!activeSession || !cart.length) return;
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+
+    const items = cart.map(c => ({ menu_item_id: c.menu_item_id, quantity: c.quantity }));
+    const notes = document.getElementById('orderNotes').value;
+
+    try {
+      await apiFetch('/orders', 'POST', {
+        session_id: activeSession.id,
+        table_id: selectedTable.id,
+        items,
+        notes,
+      });
+      showToast('Order sent to kitchen', 'success');
+      cart = [];
+      document.getElementById('orderNotes').value = '';
+      renderCart();
+      loadSessionOrders(activeSession.id);
+      loadTables();
+    } catch (e) {
+      showToast(e.message, 'error');
+      btn.disabled = false;
+    }
+  }
+
+  // ============================================================
+  // SESSION ORDERS
+  // ============================================================
+  async function loadSessionOrders(sessionId) {
+    const orders = await apiFetch(`/sessions/${sessionId}`);
+    const strip = document.getElementById('ordersStrip');
+    if (!orders || !orders.length) {
+      strip.innerHTML = '<div style="color:var(--text-dim);font-size:0.72rem;padding:4px 0">No orders yet</div>';
+      return;
+    }
+
+    strip.innerHTML = orders.map(o => `
+      <div class="order-card">
+        <div class="order-card-header">
+          <span class="order-card-id">Order #${o.id}</span>
+          <span class="badge badge-${o.status}">${o.status}</span>
+          ${o.status === 'received' ? `<button class="order-cancel-btn" onclick="cancelOrder(${o.id})">Cancel</button>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          ${(o.items||[]).map(i => `
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted)">
+              <span>${i.item_name} x${i.quantity}</span>
+              <span>$${(i.price_at_time * i.quantity).toFixed(2)}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function cancelOrder(orderId) {
+    try {
+      await apiFetch(`/orders/${orderId}`, 'DELETE');
+      showToast('Order cancelled', 'success');
+      loadSessionOrders(activeSession.id);
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  // ============================================================
+  // API HELPER
+  // ============================================================
+  async function apiFetch(path, method = 'GET', body = null) {
+    const opts = {
+      method,
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`${API}${path}`, opts);
+    if (res.status === 401) { logout(); return; }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Request failed');
+    return data;
+  }
+
+  // ============================================================
+  // TOAST
+  // ============================================================
+  let toastTimer;
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `show ${type ? 'toast-' + type : ''}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = ''; }, 2800);
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+  }
+</script>
+</body>
+</html>

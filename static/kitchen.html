@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitchen - Maison</title>
+<link rel="stylesheet" href="/static/shared.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=GDS+Transport:wght@400;500;700&display=swap');
+
+:root {
+  --color-bg:#ffffff;
+  --color-surface:#f3f2f1;
+  --color-surface-2:#ffffff;
+  --color-border:#b1b4b6;
+  --color-border-2:#505a5f;
+  --color-text:#0b0c0c;
+  --color-text-muted:#626a6e;
+  --color-text-dim:#505a5f;
+  --color-accent:#1d70b8;
+  --color-accent-dim:#003078;
+  --color-success:#00703c;
+  --color-warning:#ff9955;
+  --radius:0;
+  --spacing-xs:.5rem;
+  --spacing-sm:1rem;
+  --spacing-md:1.5rem;
+  --spacing-lg:2rem;
+  --header-h:48px;
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+
+html{
+  font-size:100%;
+  line-height:1.25;
+  -webkit-font-smoothing:antialiased;
+}
+
+body{
+  margin:0;
+  padding-top:var(--header-h);
+  font-family:'GDS Transport',Arial,sans-serif;
+  color:var(--color-text);
+  background:var(--color-bg);
+}
+
+/* RESPONSIVE BOARD */
+.board{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:var(--spacing-sm);
+  padding:var(--spacing-sm);
+  min-height:calc(100vh - var(--header-h));
+  background:var(--color-bg);
+}
+
+@media (max-width:1024px){
+  .board{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media (max-width:640px){
+  .board{
+    grid-template-columns:1fr;
+  }
+}
+
+/* LANES */
+.lane{
+  background:var(--color-surface);
+  display:flex;
+  flex-direction:column;
+  border:1px solid var(--color-border);
+  min-height:300px;
+}
+
+.lane-header{
+  padding:var(--spacing-sm);
+  border-bottom:1px solid var(--color-border);
+  background:var(--color-surface-2);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.lane-title{
+  font-size:.75rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--color-text-muted);
+}
+
+.lane-count{
+  font-size:.75rem;
+  border:1px solid var(--color-border-2);
+  padding:4px 8px;
+}
+
+.lane-received .lane-count{border-color:var(--color-accent);}
+.lane-preparing .lane-count{border-color:var(--color-warning);}
+.lane-ready .lane-count{border-color:var(--color-success);}
+
+.lane-cards{
+  flex:1;
+  overflow-y:auto;
+  padding:var(--spacing-sm);
+  display:flex;
+  flex-direction:column;
+  gap:var(--spacing-sm);
+}
+
+/* CARDS */
+.order-card{
+  background:#fff;
+  border:1px solid var(--color-border);
+}
+
+.order-card:hover{
+  border-color:var(--color-accent);
+  box-shadow:0 0 0 3px var(--color-accent);
+}
+
+.order-card-top{
+  padding:var(--spacing-sm);
+  border-bottom:1px solid var(--color-border);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:var(--spacing-sm);
+}
+
+@media (max-width:480px){
+  .order-card-top{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+
+.order-meta{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.order-table{
+  font-weight:700;
+  color:var(--color-accent);
+}
+
+.order-id,
+.order-time,
+.waiter-tag{
+  font-size:.75rem;
+  color:var(--color-text-muted);
+}
+
+/* ITEMS */
+.order-items-list{
+  padding:var(--spacing-sm);
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.order-item-row{
+  display:flex;
+  justify-content:space-between;
+  font-size:.85rem;
+}
+
+.order-item-qty{
+  font-size:.75rem;
+  border:1px solid var(--color-border);
+  padding:2px 6px;
+}
+
+/* NOTES */
+.order-notes{
+  padding:0 var(--spacing-sm) var(--spacing-sm);
+  font-size:.8rem;
+  color:var(--color-accent-dim);
+}
+
+/* ACTIONS */
+.order-actions{
+  padding:var(--spacing-sm);
+  border-top:1px solid var(--color-border);
+}
+
+.advance-btn{
+  width:100%;
+  padding:10px;
+  font-size:.85rem;
+  font-weight:700;
+  border:0;
+  cursor:pointer;
+}
+
+.advance-btn:focus-visible{
+  outline:3px solid var(--color-accent);
+}
+
+.btn-to-preparing{
+  background:#0d4700;
+  color:#fff;
+}
+
+.btn-to-ready{
+  background:#004628;
+  color:#fff;
+}
+
+.btn-served{
+  background:#0b0c0c;
+  color:#e5e5e5;
+  cursor:default;
+}
+
+/* EMPTY */
+.empty-lane{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:120px;
+  color:var(--color-text-dim);
+  font-size:.85rem;
+  text-transform:uppercase;
+}
+
+/* SCROLL */
+.lane-cards::-webkit-scrollbar{
+  width:6px;
+}
+.lane-cards::-webkit-scrollbar-thumb{
+  background:var(--color-border-2);
+}
+.lane-cards{
+  scrollbar-width:thin;
+}
+
+/* GLOBAL FOCUS */
+:focus-visible{
+  outline:3px solid var(--color-accent);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">Maison</div>
+  <span class="header-role">Kitchen</span>
+  <span class="header-user" id="hdrUser"></span>
+  <button class="logout-btn" onclick="logout()">Sign Out</button>
+</div>
+
+<div class="board">
+  <div class="lane lane-received">
+    <div class="lane-header">
+      <span class="lane-title">Received</span>
+      <span class="lane-count" id="count-received">0</span>
+    </div>
+    <div class="lane-cards" id="lane-received"></div>
+  </div>
+
+  <div class="lane lane-preparing">
+    <div class="lane-header">
+      <span class="lane-title">Preparing</span>
+      <span class="lane-count" id="count-preparing">0</span>
+    </div>
+    <div class="lane-cards" id="lane-preparing"></div>
+  </div>
+
+  <div class="lane lane-ready">
+    <div class="lane-header">
+      <span class="lane-title">Ready</span>
+      <span class="lane-count" id="count-ready">0</span>
+    </div>
+    <div class="lane-cards" id="lane-ready"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ============================================================
+  // STATE
+  // ============================================================
+  const API = '';
+  let token = localStorage.getItem('token');
+  let role  = localStorage.getItem('role');
+  let username = localStorage.getItem('username');
+  let orders = { received: [], preparing: [], ready: [] };
+  let ws = null;
+
+  if (!token || role !== 'kitchen') { window.location.href = '/'; }
+  document.getElementById('hdrUser').textContent = username;
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  async function init() {
+    await loadOrders();
+    connectWS();
+    // Poll every 15s as fallback
+    setInterval(loadOrders, 15000);
+  }
+
+  init();
+
+  // ============================================================
+  // WEBSOCKET
+  // ============================================================
+  function connectWS() {
+    const wsUrl = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws/kitchen?token=${token}`;
+    ws = new WebSocket(wsUrl);
+    ws.onmessage = async e => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'new_order') {
+        await loadOrders();
+        showToast(`New order from Table ${msg.order?.table_number || ''}`, 'success');
+        playAlert();
+      } else if (msg.type === 'status_update' || msg.type === 'order_cancelled') {
+        await loadOrders();
+      }
+    };
+    ws.onclose = () => setTimeout(connectWS, 3000);
+    setInterval(() => ws && ws.readyState === 1 && ws.send(JSON.stringify({type:'ping'})), 20000);
+  }
+
+  // ============================================================
+  // LOAD ORDERS
+  // ============================================================
+  async function loadOrders() {
+    const data = await apiFetch('/orders/kitchen');
+    orders.received  = data.filter(o => o.status === 'received');
+    orders.preparing = data.filter(o => o.status === 'preparing');
+    orders.ready     = data.filter(o => o.status === 'ready');
+    renderBoard();
+  }
+
+  // ============================================================
+  // RENDER
+  // ============================================================
+  function renderBoard() {
+    ['received', 'preparing', 'ready'].forEach(status => {
+      const container = document.getElementById(`lane-${status}`);
+      const list = orders[status];
+      document.getElementById(`count-${status}`).textContent = list.length;
+      if (!list.length) {
+        container.innerHTML = '<div class="empty-lane">No orders</div>';
+        return;
+      }
+      container.innerHTML = list.map(o => renderCard(o, status)).join('');
+    });
+  }
+
+  function renderCard(o, status) {
+    const elapsed = formatElapsed(o.created_at);
+    const actionMap = {
+      received:  { label: 'Start Preparing', cls: 'btn-to-preparing' },
+      preparing: { label: 'Mark Ready', cls: 'btn-to-ready' },
+      ready:     { label: 'Served', cls: 'btn-served' },
+    };
+    const action = actionMap[status];
+    const itemsHtml = (o.items || []).map(i => `
+      <div class="order-item-row">
+        <span class="order-item-name">${i.item_name}</span>
+        <span class="order-item-qty">x${i.quantity}</span>
+      </div>
+    `).join('');
+
+    return `
+      <div class="order-card" id="card-${o.id}">
+        <div class="order-card-top">
+          <div class="order-meta">
+            <div class="order-table">T${o.table_number}</div>
+            <div class="order-id">#${o.id}</div>
+            <div class="waiter-tag">${o.waiter_name}</div>
+          </div>
+          <div class="order-time">${elapsed}</div>
+        </div>
+        <div class="order-items-list">${itemsHtml}</div>
+        ${o.notes ? `<div class="order-notes">${o.notes}</div>` : ''}
+        <div class="order-actions">
+          ${status !== 'ready'
+            ? `<button class="advance-btn ${action.cls}" onclick="advanceOrder(${o.id})">${action.label}</button>`
+            : `<div class="advance-btn ${action.cls}">${action.label}</div>`}
+        </div>
+      </div>
+    `;
+  }
+
+  function formatElapsed(iso) {
+    const diff = Math.floor((Date.now() - new Date(iso + 'Z').getTime()) / 1000);
+    if (diff < 60) return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    return `${Math.floor(diff / 3600)}h ago`;
+  }
+
+  // ============================================================
+  // ADVANCE ORDER
+  // ============================================================
+  async function advanceOrder(orderId) {
+    try {
+      await apiFetch(`/orders/${orderId}/status`, 'PATCH');
+      await loadOrders();
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  // ============================================================
+  // ALERT SOUND (simple beep using Web Audio)
+  // ============================================================
+  function playAlert() {
+    try {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch (e) {}
+  }
+
+  // ============================================================
+  // API HELPER
+  // ============================================================
+  async function apiFetch(path, method = 'GET', body = null) {
+    const opts = {
+      method,
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`${API}${path}`, opts);
+    if (res.status === 401) { logout(); return; }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Request failed');
+    return data;
+  }
+
+  let toastTimer;
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `show ${type ? 'toast-' + type : ''}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = ''; }, 2800);
+  }
+
+  function logout() { localStorage.clear(); window.location.href = '/'; }
+</script>
+</body>
+</html>
