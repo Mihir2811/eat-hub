@@ -1,116 +1,263 @@
-# Restaurant Order Management System
+# Eat-Hub Restaurant Order Management System
 
-## Structure
+A real-time restaurant management application built with FastAPI that streamlines restaurant operations for Admin, Waiter, and Kitchen staff. The system provides role-based dashboards, live order tracking, kitchen workflow management, billing, analytics, and WebSocket-powered real-time updates.
 
-```
+---
+
+# Features
+
+## Admin Panel (`/admin`)
+
+* Manage menu items and availability
+* Create and manage staff accounts
+* View restaurant analytics and earnings
+* Access billing and invoice generation
+* Monitor logs and restaurant activity
+* Close customer sessions after payment
+
+## Waiter Panel (`/waiter`)
+
+* Manage restaurant tables and active sessions
+* Add menu items to customer carts
+* Send orders directly to the kitchen
+* Track live order status updates
+* Simplified touch-friendly interface
+
+## Kitchen Panel (`/kitchen`)
+
+* Real-time Kanban-style kitchen board
+* Receive instant order notifications
+* Update preparation status:
+
+  * Received
+  * Preparing
+  * Ready
+* Notify waiters automatically using WebSockets
+
+---
+
+# Project Structure
+
+```text
 restaurant/
-  functions.py        # All business logic and database functions
-  main.py             # FastAPI endpoints and WebSocket hub
-  requirements.txt    # Python dependencies
-  .env.example        # Environment variable template
-  static/
-    shared.css        # Shared styles
-    login.html        # Staff login page
-    waiter.html       # Waiter order interface
-    kitchen.html      # Kitchen board (Kanban-style)
-    admin.html        # Admin dashboard
+│
+├── functions.py        # Business logic and database functions
+├── main.py             # FastAPI routes and WebSocket hub
+├── requirements.txt    # Python dependencies
+├── .env.example        # Environment variable template
+│
+├── static/
+│   ├── shared.css      # Shared styles
+│   ├── login.html      # Staff login page
+│   ├── waiter.html     # Waiter dashboard
+│   ├── kitchen.html    # Kitchen Kanban board
+│   └── admin.html      # Admin dashboard
 ```
 
-## Setup
+---
+
+# Installation
+
+## 1. Clone the Repository
 
 ```bash
-# 1. Install dependencies
+git clone <repository-url>
+cd restaurant
+```
+
+## 2. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-# 2. Configure environment
+## 3. Configure Environment Variables
+
+```bash
 cp .env.example .env
-# Edit .env with your admin credentials and secret key
+```
 
-# 3. Run
+Edit the `.env` file and configure:
+
+```env
+SECRET_KEY=your_secret_key
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=password
+DATABASE_PATH=restaurant.db
+TOKEN_EXPIRY_HOURS=12
+```
+
+---
+
+# Run the Application
+
+```bash
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-## Roles and URLs
+Application URLs:
 
-| Role    | URL           | Access                              |
-|---------|---------------|-------------------------------------|
-| Admin   | /admin        | Full system, stats, billing, users  |
-| Waiter  | /waiter       | Tables, orders, sessions            |
-| Kitchen | /kitchen      | Kitchen board, status updates       |
+| Role    | URL        |
+| ------- | ---------- |
+| Admin   | `/admin`   |
+| Waiter  | `/waiter`  |
+| Kitchen | `/kitchen` |
 
-## Key Flows
+---
 
-### Waiter Flow
-1. Login -> redirected to /waiter
-2. Tap a table -> session opens automatically
-3. Tap menu items -> adds to cart
-4. Send to Kitchen -> order created, kitchen notified via WebSocket
-5. Monitor order status in session strip
+# Workflow
 
-### Kitchen Flow
-1. Login -> /kitchen Kanban board
-2. New orders appear in "Received" column with alert sound
-3. Tap "Start Preparing" -> moves to Preparing
-4. Tap "Mark Ready" -> moves to Ready (waiter notified)
+## Waiter Workflow
 
-### Admin Flow
-1. Login -> /admin dashboard
-2. Statistics and earnings (admin-only)
-3. Menu management (add, toggle items)
-4. Create staff accounts
-5. View bill and download PDF invoice
-6. Close session after payment
+1. Login to the waiter dashboard
+2. Select a table to open a session
+3. Add menu items to the cart
+4. Send order to the kitchen
+5. Monitor live order status updates
 
-## API Endpoints
+## Kitchen Workflow
 
-### Auth
-- POST /auth/login
-- GET  /auth/me
+1. Login to the kitchen dashboard
+2. View incoming orders in the "Received" column
+3. Move orders to:
 
-### Users (admin only)
-- POST   /users
-- GET    /users
-- DELETE /users/{id}
+   * Preparing
+   * Ready
+4. Waiters receive instant status updates
 
-### Menu
-- GET    /menu
-- POST   /menu              (admin)
-- PATCH  /menu/{id}         (admin)
-- PATCH  /menu/{id}/toggle  (admin)
+## Admin Workflow
 
-### Tables
-- GET  /tables
-- POST /tables  (admin)
+1. Login to the admin dashboard
+2. Manage menu items and staff
+3. Monitor earnings and analytics
+4. Generate invoices and bills
+5. Close completed sessions
 
-### Sessions
-- POST   /sessions
-- GET    /sessions/{id}
-- DELETE /sessions/{id}  (admin)
+---
 
-### Orders
-- POST   /orders
-- GET    /orders/kitchen
-- GET    /orders/{id}
-- PATCH  /orders/{id}/status
-- DELETE /orders/{id}
+# API Endpoints
 
-### Billing (admin only)
-- GET /bill/{session_id}
-- GET /invoice/{session_id}
+## Authentication
 
-### Analytics (admin only)
-- GET /stats
-- GET /earnings
+```http
+POST /auth/login
+GET  /auth/me
+```
 
-### Logs (admin only)
-- GET /logs
+## Users (Admin Only)
 
-### WebSocket
-- WS /ws/{role}?token=...
+```http
+POST   /users
+GET    /users
+DELETE /users/{id}
+```
 
-## Production Notes
+## Menu
 
-- Replace SQLite with PostgreSQL by updating DATABASE_PATH to a DSN
-- Set SECRET_KEY to a cryptographically random 256-bit value
-- Run behind HTTPS reverse proxy (nginx, Caddy)
-- Set TOKEN_EXPIRY_HOURS appropriately for shift length
+```http
+GET   /menu
+POST  /menu
+PATCH /menu/{id}
+PATCH /menu/{id}/toggle
+```
+
+## Tables
+
+```http
+GET  /tables
+POST /tables
+```
+
+## Sessions
+
+```http
+POST   /sessions
+GET    /sessions/{id}
+DELETE /sessions/{id}
+```
+
+## Orders
+
+```http
+POST   /orders
+GET    /orders/kitchen
+GET    /orders/{id}
+PATCH  /orders/{id}/status
+DELETE /orders/{id}
+```
+
+## Billing
+
+```http
+GET /bill/{session_id}
+GET /invoice/{session_id}
+```
+
+## Analytics
+
+```http
+GET /stats
+GET /earnings
+```
+
+## Logs
+
+```http
+GET /logs
+```
+
+---
+
+# WebSocket Support
+
+Real-time updates are powered through WebSockets.
+
+```http
+WS /ws/{role}?token=...
+```
+
+Used for:
+
+* Instant kitchen notifications
+* Live order tracking
+* Real-time dashboard updates
+
+---
+
+# Production Deployment Notes
+
+* Replace SQLite with PostgreSQL for production environments
+* Configure a strong cryptographic `SECRET_KEY`
+* Run behind an HTTPS reverse proxy such as:
+
+  * Nginx
+  * Caddy
+* Configure appropriate token expiry durations
+* Use process managers like:
+
+  * Gunicorn
+  * Supervisor
+  * Docker
+
+---
+
+# Tech Stack
+
+* Python
+* FastAPI
+* WebSockets
+* SQLite / PostgreSQL
+* HTML, CSS, JavaScript
+* REST API Architecture
+
+---
+
+# Highlights
+
+* Real-time order management
+* Role-based dashboards
+* Kitchen Kanban system
+* Secure authentication
+* Billing and invoice generation
+* Analytics and earnings tracking
+* Lightweight and production-ready architecture
